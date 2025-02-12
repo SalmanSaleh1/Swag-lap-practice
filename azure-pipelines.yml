@@ -1,13 +1,13 @@
 trigger:
-  - main
+  - main  # Runs when changes are pushed to the "main" branch
 
 pool:
-  name: MyPool
+  name: MyPool  # Use your self-hosted agent pool
 
 steps:
   - script: |
-      echo "Installing Python 3.x"
-      choco install python --version 3.x -y
+      echo "Installing Python 3.9"
+      choco install python --version 3.9 -y
     displayName: 'Install Python'
 
   - script: |
