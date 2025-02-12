@@ -2,7 +2,7 @@ trigger:
   - main  # Runs when changes are pushed to the "main" branch
 
 pool:
-  vmImage: 'ubuntu-latest'
+  name: MyPool  # Use your self-hosted agent pool
 
 steps:
   - task: UsePythonVersion@0
