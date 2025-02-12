@@ -1,14 +1,15 @@
 trigger:
-  - main  # Runs when changes are pushed to the "main" branch
+  - main
 
 pool:
-  name: MyPool  # Use your self-hosted agent pool
+  name: MyPool
 
 steps:
-  - task: UsePythonVersion@0
-    inputs:
-      versionSpec: '3.x'
-    
+  - script: |
+      echo "Installing Python 3.x"
+      choco install python --version 3.x -y
+    displayName: 'Install Python'
+
   - script: |
       python -m venv venv
       source venv/bin/activate
