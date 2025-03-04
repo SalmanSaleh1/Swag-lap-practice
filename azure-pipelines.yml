@@ -14,7 +14,7 @@ steps:
       python -m venv venv
       .\venv\Scripts\activate
       pip install --upgrade pip
-      pip install pytest pytest-azurepipelines robotframework robotframework-appiumlibrary
+      pip install pytest robotframework robotframework-appiumlibrary
     displayName: 'Install Dependencies'
 
   - script: |
@@ -24,8 +24,8 @@ steps:
 
   - script: |
       .\venv\Scripts\activate
-      pytest tests/ --junitxml=$(Build.SourcesDirectory)/pytest_results.xml
-    displayName: 'Run Python Tests'
+      pytest tests/ --junitxml=$(Build.SourcesDirectory)/results/pytest_results.xml
+    displayName: 'Run PyTest Tests'
 
   - script: |
       .\venv\Scripts\activate
@@ -44,7 +44,7 @@ steps:
 
   - task: PublishTestResults@2
     inputs:
-      testResultsFiles: '**/pytest_results.xml'
+      testResultsFiles: '$(Build.SourcesDirectory)/results/pytest_results.xml'
       testRunTitle: 'PyTest Results'
       mergeTestResults: true
     condition: succeededOrFailed()
@@ -52,7 +52,7 @@ steps:
 
   - task: PublishTestResults@2
     inputs:
-      testResultsFiles: '$(Build.ArtifactStagingDirectory)/results/output.xml'
+      testResultsFiles: '$(Build.SourcesDirectory)/results/output.xml'
       testRunTitle: 'Robot Framework Results'
       mergeTestResults: true
     condition: succeededOrFailed()
