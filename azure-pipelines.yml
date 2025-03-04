@@ -22,7 +22,6 @@ steps:
         echo "Running Robot Framework Tests"
         .\venv\Scripts\activate
         robot --randomize all --loglevel TRACE --outputdir results Tests/
-        # Display the results directly in the log
         tail -n 10 results/log.html  # Show the last 10 lines of the log file
     displayName: 'Run Robot Framework Tests and Show Results in Logs'
 
