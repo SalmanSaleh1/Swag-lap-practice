@@ -4,7 +4,7 @@ trigger:
       - main  # Trigger pipeline on changes to the "main" branch
 
 pool:
-  vmImage: 'MyPool'  # Use a Microsoft-hosted agent
+  name: MyPool  # Name of your self-hosted pool
 
 jobs:
   - job: RunTests
