@@ -14,10 +14,38 @@ steps:
       python -m venv venv  # Create a virtual environment
       .\venv\Scripts\activate  # Activate the virtual environment (Windows)
       pip install --upgrade pip  # Upgrade pip to the latest version
-      pip install pytest  # Install pytest (or other packages you need)
+      pip install pytest pytest-azurepipelines robotframework robotframework-appiumlibrary
     displayName: 'Install Dependencies'
 
   - script: |
-      .\venv\Scripts\activate  # Ensure the virtual environment is activated (Windows)
-      pytest tests/  # Run tests
-    displayName: 'Run Tests'
+      .\venv\Scripts\activate
+      pytest tests/ --junitxml=pytest_results.xml  # Run tests and generate XML report
+    displayName: 'Run Python Tests'
+
+  - script: |
+      .\venv\Scripts\activate
+      robot --outputdir results Tests/  # Run Robot Framework tests and save results
+    displayName: 'Run Robot Framework Tests'
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFiles: '**/pytest_results.xml'
+      testRunTitle: 'PyTest Results'
+      mergeTestResults: true
+    condition: succeededOrFailed()
+    displayName: 'Publish PyTest Results'
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFiles: '**/results/output.xml'
+      testRunTitle: 'Robot Framework Results'
+      mergeTestResults: true
+    condition: succeededOrFailed()
+    displayName: 'Publish Robot Framework Results'
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: 'results'
+      artifactName: 'TestReports'
+    condition: succeededOrFailed()
+    displayName: 'Publish Robot Framework Reports'
