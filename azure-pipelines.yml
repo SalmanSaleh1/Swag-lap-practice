@@ -19,12 +19,12 @@ steps:
 
   - script: |
       .\venv\Scripts\activate  # Ensure the virtual environment is activated (Windows)
-      robot --outputdir results tests/  # Run Robot Framework tests and save results to the "results" folder
-    displayName: 'Run Robot Framework Tests'
+      robot --loglevel DEBUG --console width=200 tests/  # Run Robot Framework tests and output results to the console
+    displayName: 'Run Robot Framework Tests and Output to Console'
 
   - script: |
       .\venv\Scripts\activate  # Ensure the virtual environment is activated (Windows)
-      robot --outputdir results --loglevel DEBUG tests/  # Run Robot Framework tests with detailed logging
       echo "Test Run Completed"
-      echo "Tests Run: $(robot --output results/output.xml --report results/report.html --log results/log.html)"
-    displayName: 'Generate Test Report and Logs'
+      echo "Robot Framework Tests Output:"
+      robot --loglevel DEBUG --console width=200 tests/  # Run the test and output directly to the console
+    displayName: 'Display Test Output in Azure Logs'
