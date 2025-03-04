@@ -1,8 +1,8 @@
 trigger:
-  - main  # Runs when changes are pushed to the "main" branch
+  - main
 
 pool:
-  name: MyPool  # Use your self-hosted agent pool
+  name: MyPool
 
 steps:
   - script: |
@@ -11,20 +11,24 @@ steps:
     displayName: 'Install Python'
 
   - script: |
-      python -m venv venv  # Create a virtual environment
-      .\venv\Scripts\activate  # Activate the virtual environment (Windows)
-      pip install --upgrade pip  # Upgrade pip to the latest version
+      python -m venv venv
+      .\venv\Scripts\activate
+      pip install --upgrade pip
       pip install pytest pytest-azurepipelines robotframework robotframework-appiumlibrary
     displayName: 'Install Dependencies'
 
   - script: |
+      mkdir $(Build.SourcesDirectory)/results  # Ensure results directory exists
+    displayName: 'Create Results Directory'
+
+  - script: |
       .\venv\Scripts\activate
-      pytest tests/ --junitxml=pytest_results.xml  # Run tests and generate XML report
+      pytest tests/ --junitxml=$(Build.SourcesDirectory)/pytest_results.xml
     displayName: 'Run Python Tests'
 
   - script: |
       .\venv\Scripts\activate
-      robot --outputdir results Tests/  # Run Robot Framework tests and save results
+      robot --outputdir $(Build.SourcesDirectory)/results Tests/
     displayName: 'Run Robot Framework Tests'
 
   - task: PublishTestResults@2
@@ -37,7 +41,7 @@ steps:
 
   - task: PublishTestResults@2
     inputs:
-      testResultsFiles: '**/results/output.xml'
+      testResultsFiles: '$(Build.SourcesDirectory)/results/output.xml'
       testRunTitle: 'Robot Framework Results'
       mergeTestResults: true
     condition: succeededOrFailed()
@@ -45,7 +49,7 @@ steps:
 
   - task: PublishBuildArtifacts@1
     inputs:
-      pathToPublish: 'results'
+      pathToPublish: '$(Build.SourcesDirectory)/results'
       artifactName: 'TestReports'
     condition: succeededOrFailed()
     displayName: 'Publish Robot Framework Reports'
