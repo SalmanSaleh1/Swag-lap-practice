@@ -69,10 +69,11 @@ steps:
     condition: succeededOrFailed()
     displayName: 'Publish PyTest Results'
 
-  # Publish Results Artifacts
+  # Publish Results Artifacts to Azure Feed
   - task: PublishBuildArtifacts@1
     inputs:
-      pathToPublish: '$(Build.ArtifactStagingDirectory)/results'
+      pathToPublish: '$(Build.SourcesDirectory)/results'
       artifactName: 'TestReports'
+      publishLocation: 'AzureArtifacts'
     condition: succeededOrFailed()
-    displayName: 'Publish Robot Framework Reports'
+    displayName: 'Publish Robot Framework Reports to Azure Artifacts'
