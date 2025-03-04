@@ -15,6 +15,7 @@ steps:
       .\venv\Scripts\activate  # Activate the virtual environment (Windows)
       pip install --upgrade pip  # Upgrade pip to the latest version
       pip install robotframework  # Install Robot Framework
+      pip install AppiumLibrary  # Install AppiumLibrary for Appium automation
     displayName: 'Install Dependencies'
 
   - script: |
