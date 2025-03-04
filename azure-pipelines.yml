@@ -4,16 +4,16 @@ trigger:
       - main  # Trigger pipeline on changes to the "main" branch
 
 pool:
-  name: 'MyPool'  # Use the default Microsoft-hosted agent pool
+  vmImage: 'MyPool'  # Use a Microsoft-hosted agent
 
 jobs:
-  - job: RunRobotTests
+  - job: RunTests
     displayName: 'Run Robot Framework Tests'
     steps:
-      # Step 1: Set up Python (dynamic version check)
+      # Step 1: Set up Python (flexible version)
       - task: UsePythonVersion@0
         inputs:
-          versionSpec: '3.x'  # Specifies the major version; automatically pulls the latest Python 3.x version.
+          versionSpec: '3.x'  # Automatically installs the latest Python 3.x version
           addToPath: true
         displayName: 'Set up Python'
 
@@ -28,7 +28,7 @@ jobs:
           pip install robotframework
         displayName: 'Install Robot Framework'
 
-      # Step 4: Run Robot Framework tests
+      # Step 4: Run Robot Framework Tests
       - script: |
           echo "Running Robot Framework Tests"
           robot --randomize all --loglevel TRACE --outputdir results Tests/
