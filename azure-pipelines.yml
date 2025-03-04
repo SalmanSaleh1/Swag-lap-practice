@@ -30,25 +30,21 @@ steps:
   - script: |
       .\venv\Scripts\activate
       robot --outputdir $(Build.SourcesDirectory)/results Tests/
-      echo "Checking results directory..."
-      dir $(Build.SourcesDirectory)/results
-    displayName: 'Run Robot Framework Tests & Verify Output'
+    displayName: 'Run Robot Framework Tests'
 
   - script: |
-      echo "Checking if results directory exists..."
-      if not exist "$(Build.SourcesDirectory)/results" mkdir "$(Build.SourcesDirectory)/results"
-      echo "Copying results to staging directory..."
-      mkdir "$(Build.ArtifactStagingDirectory)/results"
-      xcopy /E /I "$(Build.SourcesDirectory)/results" "$(Build.ArtifactStagingDirectory)/results"
-    displayName: 'Copy Results to Artifact Staging Directory'
-
-  - task: PublishTestResults@2
-    inputs:
-      testResultsFiles: '$(Build.SourcesDirectory)/results/pytest_results.xml'
-      testRunTitle: 'PyTest Results'
-      mergeTestResults: true
-    condition: succeededOrFailed()
-    displayName: 'Publish PyTest Results'
+      echo "Verifying the test result files..."
+      if exist "$(Build.SourcesDirectory)/results/output.xml" (
+        echo "Found Robot Framework result file"
+      ) else (
+        echo "Robot Framework result file not found"
+      )
+      if exist "$(Build.SourcesDirectory)/results/pytest_results.xml" (
+        echo "Found PyTest result file"
+      ) else (
+        echo "PyTest result file not found"
+      )
+    displayName: 'Verify Test Result Files'
 
   - task: PublishTestResults@2
     inputs:
@@ -57,6 +53,14 @@ steps:
       mergeTestResults: true
     condition: succeededOrFailed()
     displayName: 'Publish Robot Framework Results'
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFiles: '$(Build.SourcesDirectory)/results/pytest_results.xml'
+      testRunTitle: 'PyTest Results'
+      mergeTestResults: true
+    condition: succeededOrFailed()
+    displayName: 'Publish PyTest Results'
 
   - task: PublishBuildArtifacts@1
     inputs:
