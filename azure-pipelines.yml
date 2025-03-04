@@ -18,7 +18,8 @@ steps:
     displayName: 'Install Dependencies'
 
   - script: |
-      mkdir $(Build.SourcesDirectory)/results  # Ensure results directory exists
+      mkdir results
+    workingDirectory: $(Build.SourcesDirectory)
     displayName: 'Create Results Directory'
 
   - script: |
@@ -29,7 +30,13 @@ steps:
   - script: |
       .\venv\Scripts\activate
       robot --outputdir $(Build.SourcesDirectory)/results Tests/
-    displayName: 'Run Robot Framework Tests'
+      dir $(Build.SourcesDirectory)/results  # Debug: Check if files exist
+    displayName: 'Run Robot Framework Tests & Verify Output'
+
+  - script: |
+      mkdir $(Build.ArtifactStagingDirectory)/results
+      xcopy /E /I $(Build.SourcesDirectory)/results $(Build.ArtifactStagingDirectory)/results
+    displayName: 'Copy Results to Artifact Staging Directory'
 
   - task: PublishTestResults@2
     inputs:
@@ -41,7 +48,7 @@ steps:
 
   - task: PublishTestResults@2
     inputs:
-      testResultsFiles: '$(Build.SourcesDirectory)/results/output.xml'
+      testResultsFiles: '$(Build.ArtifactStagingDirectory)/results/output.xml'
       testRunTitle: 'Robot Framework Results'
       mergeTestResults: true
     condition: succeededOrFailed()
@@ -49,7 +56,7 @@ steps:
 
   - task: PublishBuildArtifacts@1
     inputs:
-      pathToPublish: '$(Build.SourcesDirectory)/results'
+      pathToPublish: '$(Build.ArtifactStagingDirectory)/results'
       artifactName: 'TestReports'
     condition: succeededOrFailed()
     displayName: 'Publish Robot Framework Reports'
