@@ -1,43 +1,30 @@
 trigger:
-  branches:
-    include:
-      - main  # Trigger pipeline on changes to the "main" branch
+  - main  # Runs when changes are pushed to the "main" branch
 
 pool:
-  name: MyPool  # Name of your self-hosted pool
+  name: MyPool  # Use your self-hosted agent pool
 
-jobs:
-  - job: RunTests
+steps:
+  - script: |
+      echo "Installing Python 3.9"
+      choco install python --version 3.9 -y
+    displayName: 'Install Python'
+
+  - script: |
+      python -m venv venv  # Create a virtual environment
+      .\venv\Scripts\activate  # Activate the virtual environment (Windows)
+      pip install --upgrade pip  # Upgrade pip to the latest version
+      pip install robotframework  # Install Robot Framework
+    displayName: 'Install Dependencies'
+
+  - script: |
+      .\venv\Scripts\activate  # Ensure the virtual environment is activated (Windows)
+      robot --outputdir results tests/  # Run Robot Framework tests and save results to the "results" folder
     displayName: 'Run Robot Framework Tests'
-    steps:
-      # Step 1: Set up Python (flexible version)
-      - task: UsePythonVersion@0
-        inputs:
-          versionSpec: '3.x'  # Automatically installs the latest Python 3.x version
-          addToPath: true
-        displayName: 'Set up Python'
 
-      # Step 2: Verify Python Installation
-      - script: |
-          python --version
-        displayName: 'Verify Python Installation'
-
-      # Step 3: Install Robot Framework and dependencies
-      - script: |
-          python -m pip install --upgrade pip
-          pip install robotframework
-        displayName: 'Install Robot Framework'
-
-      # Step 4: Run Robot Framework Tests
-      - script: |
-          echo "Running Robot Framework Tests"
-          robot --randomize all --loglevel TRACE --outputdir results Tests/
-        displayName: 'Run Robot Framework Tests'
-
-      # Step 5: Publish test results as build artifacts
-      - task: PublishBuildArtifacts@1
-        inputs:
-          PathtoPublish: 'results'
-          ArtifactName: 'RobotFrameworkReports'
-          publishLocation: 'Container'
-        displayName: 'Publish Test Results'
+  - script: |
+      .\venv\Scripts\activate  # Ensure the virtual environment is activated (Windows)
+      robot --outputdir results --loglevel DEBUG tests/  # Run Robot Framework tests with detailed logging
+      echo "Test Run Completed"
+      echo "Tests Run: $(robot --output results/output.xml --report results/report.html --log results/log.html)"
+    displayName: 'Generate Test Report and Logs'
