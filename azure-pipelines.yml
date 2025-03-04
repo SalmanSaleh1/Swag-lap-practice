@@ -1,52 +1,36 @@
 trigger:
-  - main  # Trigger the pipeline on changes to the main branch
+  - main  # Trigger pipeline on changes to the "main" branch
 
 pool:
-  name: MyPool  # Use your self-hosted agent pool
+  name: 'MyPool'  # Replace with your agent pool name
 
-steps:
-  - task: CmdLine@2
-    inputs:
-      script: |
-        echo "Installing Python 3.9 and Robot Framework"
-        choco install python --version 3.9 -y
-        python -m venv venv  # Create a virtual environment
-        .\venv\Scripts\activate  # Activate the virtual environment
-        pip install --upgrade pip
-        pip install robotframework  # Install Robot Framework
-    displayName: 'Install Python and Robot Framework'
+jobs:
+  - job: RunRobotTests
+    displayName: 'Run Robot Framework Tests'
+    steps:
+      # Step 1: Set up Python environment
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '3.9'  # Specify the Python version
+          addToPath: true
+        displayName: 'Set up Python 3.9'
 
-  - task: CmdLine@2
-    inputs:
-      script: |
-        echo "Running Robot Framework Tests"
-        .\venv\Scripts\activate
-        robot --randomize all --loglevel TRACE --outputdir results Tests/
-        tail -n 10 results/log.html  # Show the last 10 lines of the log file
-    displayName: 'Run Robot Framework Tests and Show Results in Logs'
+      # Step 2: Install dependencies
+      - script: |
+          python -m pip install --upgrade pip
+          pip install robotframework
+        displayName: 'Install Robot Framework'
 
-  - task: CmdLine@2
-    inputs:
-      script: |
-        echo "Parsing the Robot Framework result to display test counts"
-        if exist results/output.xml (
-          python -c "
-import xml.etree.ElementTree as ET
-tree = ET.parse('results/output.xml')
-root = tree.getroot()
+      # Step 3: Run Robot Framework Tests
+      - script: |
+          echo "Running Robot Framework Tests"
+          robot --randomize all --loglevel TRACE --outputdir results Tests/
+        displayName: 'Run Robot Framework Tests'
 
-# Extracting test statistics
-total_tests = root.find('statistics').find('total').text
-passed_tests = root.find('statistics').find('passed').text
-failed_tests = root.find('statistics').find('failed').text
-skipped_tests = root.find('statistics').find('skipped').text
-
-print(f'Total Tests: {total_tests}')
-print(f'Passed Tests: {passed_tests}')
-print(f'Failed Tests: {failed_tests}')
-print(f'Skipped Tests: {skipped_tests}')
-          "
-        ) else (
-          echo "No output.xml file found."
-        )
-    displayName: 'Display Test Results Count in Logs'
+      # Step 4: Publish Test Results
+      - task: PublishTestResults@2
+        inputs:
+          testResultsFiles: '**/results/output.xml'
+          testRunTitle: 'Robot Framework Test Run'
+        condition: succeededOrFailed()
+        displayName: 'Publish Test Results'
