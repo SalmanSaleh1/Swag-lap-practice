@@ -4,7 +4,7 @@ trigger:
       - main  # Trigger pipeline on changes to the "main" branch
 
 pool:
-  name: 'Default'  # Use the default Microsoft-hosted agent pool
+  name: 'MyPool'  # Use the default Microsoft-hosted agent pool
 
 jobs:
   - job: RunRobotTests
