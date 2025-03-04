@@ -22,16 +22,21 @@ steps:
     workingDirectory: $(Build.SourcesDirectory)
     displayName: 'Create Results Directory'
 
+  # Run PyTest with Randomization and TRACE loglevel
   - script: |
+      echo "Running PyTest Tests with randomize and TRACE loglevel"
       .\venv\Scripts\activate
-      pytest tests/ --junitxml=$(Build.SourcesDirectory)/results/pytest_results.xml
-    displayName: 'Run PyTest Tests'
+      pytest tests/ --random --log-level=TRACE --junitxml=$(Build.SourcesDirectory)/results/pytest_results.xml --outputdir=$(Build.SourcesDirectory)/results
+    displayName: 'Run PyTest Tests with Trace Logging and Randomization'
 
+  # Run Robot Framework Tests with Randomization and TRACE loglevel
   - script: |
+      echo "Running Robot Framework Tests with randomize and TRACE loglevel"
       .\venv\Scripts\activate
-      robot --outputdir $(Build.SourcesDirectory)/results Tests/
-    displayName: 'Run Robot Framework Tests'
+      robot --randomize all --loglevel TRACE --outputdir $(Build.SourcesDirectory)/results Tests/
+    displayName: 'Run Robot Framework Tests with Randomization and TRACE Logging'
 
+  # Verify if result files are generated
   - script: |
       echo "Verifying the test result files..."
       if exist "$(Build.SourcesDirectory)/results/output.xml" (
@@ -46,6 +51,7 @@ steps:
       )
     displayName: 'Verify Test Result Files'
 
+  # Publish Robot Framework Results
   - task: PublishTestResults@2
     inputs:
       testResultsFiles: '$(Build.SourcesDirectory)/results/output.xml'
@@ -54,6 +60,7 @@ steps:
     condition: succeededOrFailed()
     displayName: 'Publish Robot Framework Results'
 
+  # Publish PyTest Results
   - task: PublishTestResults@2
     inputs:
       testResultsFiles: '$(Build.SourcesDirectory)/results/pytest_results.xml'
@@ -62,6 +69,7 @@ steps:
     condition: succeededOrFailed()
     displayName: 'Publish PyTest Results'
 
+  # Publish Results Artifacts
   - task: PublishBuildArtifacts@1
     inputs:
       pathToPublish: '$(Build.ArtifactStagingDirectory)/results'
