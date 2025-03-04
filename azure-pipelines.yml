@@ -1,35 +1,37 @@
 trigger:
-  - main
+  - main  # Trigger the pipeline on changes to the main branch
 
 pool:
   name: MyPool  # Use your self-hosted agent pool
 
 steps:
-  # Step 1: Install Python 3.9 and Robot Framework
-  - script: |
-      echo "Installing Python 3.9 and Robot Framework"
-      choco install python --version 3.9 -y
-      python -m venv venv  # Create a virtual environment
-      .\venv\Scripts\activate  # Activate the virtual environment
-      pip install --upgrade pip
-      pip install robotframework  # Install Robot Framework
+  - task: CmdLine@2
+    inputs:
+      script: |
+        echo "Installing Python 3.9 and Robot Framework"
+        choco install python --version 3.9 -y
+        python -m venv venv  # Create a virtual environment
+        .\venv\Scripts\activate  # Activate the virtual environment
+        pip install --upgrade pip
+        pip install robotframework  # Install Robot Framework
     displayName: 'Install Python and Robot Framework'
 
-  # Step 2: Run Robot Framework Tests and Display Results in Logs
-  - script: |
-      echo "Running Robot Framework Tests"
-      .\venv\Scripts\activate
-      robot --randomize all --loglevel TRACE --outputdir results Tests/
-      # Display the results directly in the log
-      tail -n 10 results/log.html  # Show the last 10 lines of the log file
+  - task: CmdLine@2
+    inputs:
+      script: |
+        echo "Running Robot Framework Tests"
+        .\venv\Scripts\activate
+        robot --randomize all --loglevel TRACE --outputdir results Tests/
+        # Display the results directly in the log
+        tail -n 10 results/log.html  # Show the last 10 lines of the log file
     displayName: 'Run Robot Framework Tests and Show Results in Logs'
 
-  # Step 3: Parse and Show Test Results Count in Logs
-  - script: |
-      echo "Parsing the Robot Framework result to display test counts"
-      if exist results/output.xml (
-        # Extracting test statistics (pass, fail, skipped) from the XML result file
-        python -c "
+  - task: CmdLine@2
+    inputs:
+      script: |
+        echo "Parsing the Robot Framework result to display test counts"
+        if exist results/output.xml (
+          python -c "
 import xml.etree.ElementTree as ET
 tree = ET.parse('results/output.xml')
 root = tree.getroot()
@@ -44,8 +46,8 @@ print(f'Total Tests: {total_tests}')
 print(f'Passed Tests: {passed_tests}')
 print(f'Failed Tests: {failed_tests}')
 print(f'Skipped Tests: {skipped_tests}')
-        "
-      ) else (
-        echo "No output.xml file found."
-      )
+          "
+        ) else (
+          echo "No output.xml file found."
+        )
     displayName: 'Display Test Results Count in Logs'
