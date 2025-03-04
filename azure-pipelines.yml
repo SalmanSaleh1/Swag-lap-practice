@@ -30,12 +30,16 @@ steps:
   - script: |
       .\venv\Scripts\activate
       robot --outputdir $(Build.SourcesDirectory)/results Tests/
-      dir $(Build.SourcesDirectory)/results  # Debug: Check if files exist
+      echo "Checking results directory..."
+      dir $(Build.SourcesDirectory)/results
     displayName: 'Run Robot Framework Tests & Verify Output'
 
   - script: |
-      mkdir $(Build.ArtifactStagingDirectory)/results
-      xcopy /E /I $(Build.SourcesDirectory)/results $(Build.ArtifactStagingDirectory)/results
+      echo "Checking if results directory exists..."
+      if not exist "$(Build.SourcesDirectory)/results" mkdir "$(Build.SourcesDirectory)/results"
+      echo "Copying results to staging directory..."
+      mkdir "$(Build.ArtifactStagingDirectory)/results"
+      xcopy /E /I "$(Build.SourcesDirectory)/results" "$(Build.ArtifactStagingDirectory)/results"
     displayName: 'Copy Results to Artifact Staging Directory'
 
   - task: PublishTestResults@2
