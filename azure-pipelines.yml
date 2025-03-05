@@ -1,31 +1,36 @@
 trigger:
-  - main  # Runs when changes are pushed to the "main" branch
-
+  - master
+ 
 pool:
-  name: MyPool  # Use your self-hosted agent pool
-
+  name: MyPool  
+ 
 steps:
+  - checkout: self
+    displayName: 'Checkout Code'
+ 
   - script: |
       echo "Installing Python 3.9"
       choco install python --version 3.9 -y
     displayName: 'Install Python'
-
+ 
   - script: |
-      python -m venv venv  # Create a virtual environment
-      .\venv\Scripts\activate  # Activate the virtual environment (Windows)
-      pip install --upgrade pip  # Upgrade pip to the latest version
-      pip install robotframework  # Install Robot Framework
-      pip install AppiumLibrary  # Install AppiumLibrary for Appium automation
-    displayName: 'Install Dependencies'
-
+      python -m venv venv
+      call .\venv\Scripts\activate && pip install --upgrade pip
+      pip install robotframework
+      pip install robotframework-seleniumlibrary
+      pip install robotframework-csvlibrary
+      pip install AppiumLibrary  
+    displayName: 'Install Robot Framework & Dependencies'
+ 
   - script: |
-      .\venv\Scripts\activate  # Ensure the virtual environment is activated (Windows)
-      robot --loglevel DEBUG --console width=200 tests/  # Run Robot Framework tests and output results to the console
-    displayName: 'Run Robot Framework Tests and Output to Console'
-
+      choco install googlechrome chromedriver -y
+    displayName: 'Install Chrome & ChromeDriver'
+ 
   - script: |
-      .\venv\Scripts\activate  # Ensure the virtual environment is activated (Windows)
-      echo "Test Run Completed"
-      echo "Robot Framework Tests Output:"
-      robot --loglevel DEBUG --console width=200 tests/  # Run the test and output directly to the console
-    displayName: 'Display Test Output in Azure Logs'
+      echo "Checking test directory and files..."
+      dir test
+    displayName: 'Debug: List Test Files'
+ 
+  - script: |
+      call .\venv\Scripts\activate && python -m robot --console verbose test/
+    displayName: 'Run All Robot Framework Test Cases'
