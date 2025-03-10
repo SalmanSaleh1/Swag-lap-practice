@@ -76,3 +76,8 @@ FULL TRACK OF ORDER
     Fill Checkout Information
     Swap in Information Page and Finish The Order  # Complete the order
     Validate Finish Order  # Verify order success page
+
+# Test case: Ensure Filter and Change Icons and Order
+Filters And Change Icons Size
+    Login to Swag Labs
+    Test The Filter And Change Items Order

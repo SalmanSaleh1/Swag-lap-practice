@@ -89,3 +89,13 @@ Validate Finish Order
     Element Should Be Enabled    xpath=//android.widget.TextView[@text="THANK YOU FOR YOU ORDER"]
     Element Should Be Enabled    xpath=//android.widget.TextView[@text="Your order has been dispatched, and will arrive just as fast as the pony can get there!"]
     Element Should Be Enabled    xpath=//android.widget.ScrollView[@content-desc="test-CHECKOUT: COMPLETE!"]/android.view.ViewGroup/android.widget.ImageView
+
+# Ensure FIlter And Change Items Order
+Test The Filter And Change Items Order
+    Wait Until Element Is Visible    ${Change_Items_icons}
+    Click Element    ${Change_Items_icons}
+    Wait Until Element Is Visible    ${Filters}
+    Click Element    ${Filters}
+    Wait Until Element Is Visible    ${Order_Items_from_A_To_Z}
+    Click Element    ${Order_Items_from_A_To_Z}
+    
