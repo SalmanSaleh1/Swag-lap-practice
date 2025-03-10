@@ -1,30 +1,36 @@
 trigger:
-  - main  # Runs when changes are pushed to the "main" branch
-
+  - master
+ 
 pool:
-  name: MyPool  # Use your self-hosted agent pool
-
+  name: MyPool  
+ 
 steps:
+  - checkout: self
+    displayName: 'Checkout Code'
+ 
   - script: |
       echo "Installing Python 3.9"
       choco install python --version 3.9 -y
     displayName: 'Install Python'
-
+ 
   - script: |
-      python -m venv venv  # Create a virtual environment
-      .\venv\Scripts\activate  # Activate the virtual environment (Windows)
-      pip install --upgrade pip  # Upgrade pip to the latest version
-      pip install robotframework  # Install Robot Framework
-    displayName: 'Install Dependencies'
-
+      python -m venv venv
+      call .\venv\Scripts\activate && pip install --upgrade pip
+      pip install robotframework
+      pip install robotframework-seleniumlibrary
+      pip install robotframework-csvlibrary
+      pip install AppiumLibrary  
+    displayName: 'Install Robot Framework & Dependencies'
+ 
   - script: |
-      .\venv\Scripts\activate  # Ensure the virtual environment is activated (Windows)
-      robot --outputdir results tests/  # Run Robot Framework tests and save results to the "results" folder
-    displayName: 'Run Robot Framework Tests'
-
+      choco install googlechrome chromedriver -y
+    displayName: 'Install Chrome & ChromeDriver'
+ 
   - script: |
-      .\venv\Scripts\activate  # Ensure the virtual environment is activated (Windows)
-      robot --outputdir results --loglevel DEBUG tests/  # Run Robot Framework tests with detailed logging
-      echo "Test Run Completed"
-      echo "Tests Run: $(robot --output results/output.xml --report results/report.html --log results/log.html)"
-    displayName: 'Generate Test Report and Logs'
+      echo "Checking test directory and files..."
+      dir test
+    displayName: 'Debug: List Test Files'
+ 
+  - script: |
+      call .\venv\Scripts\activate && python -m robot --console verbose test/
+    displayName: 'Run All Robot Framework Test Cases'
