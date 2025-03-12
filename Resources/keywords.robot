@@ -1,7 +1,6 @@
 *** Settings ***
 # Import the Appium configuration file
-Resource    ../Resources/resources.robot
-Resource    ../Resources/locators.robot
+Resource    resources.robot
 
 *** Keywords ***
 # Open the Swag Labs mobile application

@@ -1,8 +1,6 @@
 *** Settings ***
 # Import the keywords from a separate file for better reusability
 Resource    ../Resources/keywords.robot
-
-
 Test Setup      Open Swag Labs App
 Test Teardown   Close Swag Labs App
 
